@@ -30,7 +30,7 @@ body{
     outline: none;
     
 }
-#pesquisar{
+#pesquisar,.translate-btn{
     border: none;
     border-radius:5px;
     padding: 10px;

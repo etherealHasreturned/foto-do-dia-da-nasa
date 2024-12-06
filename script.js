@@ -19,19 +19,44 @@ async function buscardados(date) {
 
     try {
         const response = await fetch(api)
+        if (!response.ok) {
+            throw new Error("data fora do intervalo")
+        }
         const data = await response.json()
         resultado(data)
     } catch (error) {
-        divresultado.innerHTML = "tente novamente mais tarde"
+        divresultado.innerHTML = "insira uma data entre 1995 e a data atual de hoje"
     }
 }
 function resultado(data) {
-    const { title, explanation, url } = data
+    const { title, explanation, url, media_type } = data
     divresultado.innerHTML = ""
     divresultado.innerHTML =
         `
     <h2>${title}</h2>
-    <img src="${url}"/>
-<p>${explanation}</p>
-    `
+    ${media_type === "image"
+            ? `<img src="${url}" alt="Imagem do dia da NASA" />`
+            : `<iframe src="${url}" frameborder="0" allowfullscreen></iframe>`
+        }
+<p class='explanation'>${explanation}</p>
+             <button class="translate-btn">Traduzir</button>
+   
+             `
+    const translateBtn = document.querySelector('.translate-btn');
+    translateBtn.addEventListener('click', () => traduzirTexto(explanation, translateBtn));
+}
+async function traduzirTexto(explanation, translateBtn){
+    const encodedText = encodeURIComponent(explanation); 
+    const tradutorURL = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt&dt=t&q=${encodedText}`;
+    try{
+        const response=await fetch(tradutorURL)
+        const data=await response.json()
+        const textoTraduzido = data[0].map(parteTexto => parteTexto[0]).join(' ')
+        console.log(textoTraduzido)
+        const paragrafo=document.querySelector(".explanation")
+        paragrafo.innerHTML=textoTraduzido
+        translateBtn.style.display="none"
+    } catch(error){
+        console.error("erro ao traduzir")
+    }
 }
